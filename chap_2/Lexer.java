@@ -29,6 +29,7 @@ public class Lexer {
     val = Integer.valueOf(num);
   }
 
+  // 空白をスキップ
   private void skipWhiteSpace() throws Exception {
     int c = reader.read();
     while ((c != -1) && Character.isWhitespace((char) c)) {
