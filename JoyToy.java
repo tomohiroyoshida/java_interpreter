@@ -1,7 +1,7 @@
 import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.InputStreamReader;
 
 public class JoyToy {
   static void usage() {
@@ -42,7 +42,7 @@ public class JoyToy {
         // プログラムの終わり
         if (code == null)
           break;
-        System.out.println("解析結果：" + code.toString()); // 結果を表示
+        System.out.println("結果：" + code.run().toString()); // 結果を表示
       }
       // 使い終わったストリームは閉じる
       in.close();

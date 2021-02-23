@@ -2,7 +2,7 @@ import java.io.Reader;
 
 public class Lexer {
   private LexerReader reader;
-  private int tok;
+  private int tokenType;
   private Object val;
 
   /**
@@ -12,7 +12,7 @@ public class Lexer {
     reader = new LexerReader(r);
   }
 
-  // 数値を読み込む
+  // 入力された数値を読み込む
   private void lexDigit() throws Exception {
     int num = 0;
     while (true) {
@@ -47,15 +47,28 @@ public class Lexer {
     try {
       skipWhiteSpace();
       int c = reader.read();
+
       if (c < 0)
         return false;
-      // 数値ならば
-      if (Character.isDigit((char) c)) {
-        reader.unread(c);
-        lexDigit();
-        tok = TokenType.INT;
-      } else {
-        throw new Exception("数字じゃないです！");
+      switch (c) {
+        // c が "; + - * /" の時は文字コードがそのままトークンの種類を表す
+        case ';':
+        case '+':
+        case '-':
+        case '*':
+        case '/':
+          tokenType = c;
+          break;
+        default:
+          // c が数値の時はトークンの種類が "TokenType.INT"(257)
+          if (Character.isDigit((char) c)) {
+            reader.unread(c);
+            lexDigit();
+            tokenType = TokenType.INT;
+          } else {
+            throw new Exception("数字じゃない、または文字が正しくないです！");
+          }
+          break;
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -68,7 +81,7 @@ public class Lexer {
    * 現在のトークンの種類を返す
    */
   public int token() {
-    return tok;
+    return tokenType;
 
   }
 
