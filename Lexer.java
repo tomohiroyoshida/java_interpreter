@@ -1,5 +1,3 @@
-package chap_2;
-
 import java.io.Reader;
 
 public class Lexer {
@@ -14,6 +12,7 @@ public class Lexer {
     reader = new LexerReader(r);
   }
 
+  // 数値を読み込む
   private void lexDigit() throws Exception {
     int num = 0;
     while (true) {
