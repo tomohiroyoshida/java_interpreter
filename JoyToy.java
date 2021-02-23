@@ -1,0 +1,61 @@
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.InputStreamReader;
+
+public class JoyToy {
+  static void usage() {
+    System.out.println("usage: Java JoyToy [source_filename]");
+  }
+
+  public static void main(String[] args) {
+    boolean interactive = false; // 標準出力から読み込んでいるときは true;
+
+    // 引数の数がおかしいときは使い方を表示して終了
+    if (args.length >= 2) {
+      usage();
+      return;
+    }
+
+    try {
+      BufferedReader in;
+
+      // 引数がない時は、標準入力から読み込む
+      if (args.length == 0) {
+        in = new BufferedReader(new InputStreamReader(System.in));
+        interactive = true;
+      }
+      // 引数で指定されたファイルから読み込む
+      else {
+        in = new BufferedReader(new FileReader(args[0]));
+      }
+
+      Lexer lex = new Lexer(in);
+      Parser parser = new Parser();
+      while (true) {
+        //  標準出力から読み込んでいるときはプロンプトを表示
+        if (interactive) {
+          System.out.print("JoyToy: ");
+        }
+        // 構文解析する
+        JTCode code = (JTCode) parser.parse(lex);
+        // プログラムの終わり
+        if (code == null)
+          break;
+        System.out.println("解析結果：" + code.toString()); // 結果を表示
+      }
+      // 使い終わったストリームは閉じる
+      in.close();
+    } catch (FileNotFoundException e) {
+      // エラー処理
+      if (args.length > 0) {
+        System.out.println("can't open file '" + args[0] + "'");
+      } else {
+        System.out.println("can't open file");
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+}

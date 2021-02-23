@@ -19,10 +19,12 @@ public class Lexer {
       int c = reader.read();
       if (c < 0)
         break;
+      // 数値でないならば
       if (!Character.isDigit((char) c)) {
         reader.unread(c);
         break;
       }
+      // 数値ならば桁を一つ増やしてcを足す。(c - '0')は string -> number 型への変換
       num = (num * 10) + (c - '0');
     }
     val = Integer.valueOf(num);
@@ -47,6 +49,7 @@ public class Lexer {
       int c = reader.read();
       if (c < 0)
         return false;
+      // 数値ならば
       if (Character.isDigit((char) c)) {
         reader.unread(c);
         lexDigit();
