@@ -1,1 +1,1 @@
-##### This is an interpreter made with Java.
+##### This is an interpreter written in Java.
