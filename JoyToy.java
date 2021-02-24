@@ -16,7 +16,6 @@ public class JoyToy {
       usage();
       return;
     }
-
     try {
       BufferedReader in;
 
@@ -35,14 +34,14 @@ public class JoyToy {
       while (true) {
         //  標準出力から読み込んでいるときはプロンプトを表示
         if (interactive) {
-          System.out.print("JoyToy: ");
+          System.out.print("入力してね: ");
         }
         // 構文解析する
         JTCode code = (JTCode) parser.parse(lex);
         // プログラムの終わり
         if (code == null)
           break;
-        System.out.println("結果：" + code.run().toString()); // 結果を表示
+        System.out.println("結果：" + code.run().toString()); // 結果を文字列で表示
       }
       // 使い終わったストリームは閉じる
       in.close();
@@ -57,5 +56,4 @@ public class JoyToy {
       e.printStackTrace();
     }
   }
-
 }

@@ -33,6 +33,7 @@ public class Lexer {
   // 空白をスキップ
   private void skipWhiteSpace() throws Exception {
     int c = reader.read();
+    // 入力の最後尾ではないかつ空白文字の場合
     while ((c != -1) && Character.isWhitespace((char) c)) {
       c = reader.read();
     }

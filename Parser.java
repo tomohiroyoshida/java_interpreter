@@ -3,7 +3,7 @@ class Parser {
   private int tokenType; // 先読みしたトークンの種類
 
   // トークンの先読み+ token を上書きする(本では"getToken()")
-  private void getNextTokenType() {
+  private void getNextToken() {
     if (lex.advance()) {
       tokenType = lex.token();
     } else {
@@ -11,12 +11,25 @@ class Parser {
     }
   }
 
+  /** 構文木「プログラム」を返す */
+  public JTCode parse(Lexer lexer) {
+    JTCode code = null;
+    lex = lexer;
+    getNextToken(); // あらかじめトークンを先読みする
+    try {
+      code = program(); // 1
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return code;
+  }
+
   /**
    * expr()を返す
    * ";"がきたら終わり
    */
   private JTCode program() throws Exception {
-    JTCode code = expr();
+    JTCode code = expr(); //2
     if (code != null) {
       switch (tokenType) {
         case ';': // ";" がきたら文の終わり
@@ -33,7 +46,7 @@ class Parser {
    * トークンの集合を構文木にした「式」を返す
    */
   private JTCode expr() throws Exception {
-    JTCode code = term();
+    JTCode code = term(); // 3
     switch (tokenType) {
       case '+':
       case '-':
@@ -53,7 +66,7 @@ class Parser {
     JTBinExpr result = null;
     while ((tokenType == '+') || (tokenType == '-')) {
       int op = tokenType;
-      getNextTokenType();
+      getNextToken();
       JTCode code2 = term();
       if (result == null) {
         result = new JTBinExpr(op, code, code2);
@@ -70,7 +83,7 @@ class Parser {
    * @throws Exception
    */
   private JTCode term() throws Exception {
-    JTCode code = factor();
+    JTCode code = factor(); // 4
     switch (tokenType) {
       case ('*'):
       case ('/'):
@@ -89,7 +102,7 @@ class Parser {
     JTBinExpr result = null;
     while ((tokenType == '*') || (tokenType == '/')) {
       int op = tokenType;
-      getNextTokenType();
+      getNextToken();
       JTCode code2 = term();
       if (result == null) {
         result = new JTBinExpr(op, code, code2);
@@ -105,30 +118,17 @@ class Parser {
    * @return 「因子」を返す
    * @throws Exception
    */
-  private JTCode factor() throws Exception {
+  private JTCode factor() throws Exception { // 5
     JTCode code = null;
     switch (tokenType) {
       case TokenType.EOS:
         break;
       case TokenType.INT:
         code = new JTInt((Integer) lex.value());
-        getNextTokenType();
+        getNextToken();
         break;
       default:
         throw new Exception("文法エラーです");
-    }
-    return code;
-  }
-
-  //  構文木「プログラム」を返す
-  public JTCode parse(Lexer lexer) {
-    JTCode code = null;
-    lex = lexer;
-    getNextTokenType(); // あらかじめトークンを先読みする
-    try {
-      code = program();
-    } catch (Exception e) {
-      e.printStackTrace();
     }
     return code;
   }
