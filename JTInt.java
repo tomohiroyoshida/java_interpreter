@@ -1,4 +1,4 @@
-/** 数値のコードに関するクラス */
+/** 数値の構文木を表すクラス */
 public class JTInt extends JTCode {
   private int value; // 数値
 

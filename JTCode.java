@@ -1,3 +1,4 @@
+/** 構文木を表す抽象クラス */
 public abstract class JTCode {
   /**
    * run()メソッドは実際の計算を行うメソッド。
