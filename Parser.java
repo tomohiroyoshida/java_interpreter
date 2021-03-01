@@ -2,7 +2,7 @@ class Parser {
   private Lexer lex; // 字句解析した結果
   private int tokenType; // 先読みしたトークンの種類
 
-  // トークンの先読み+ token を上書きする(本では"getToken()")
+  // トークンの先読み+ tokenType を上書きする(本では"getToken()")
   private void getNextToken() {
     if (lex.advance()) {
       tokenType = lex.token();
@@ -101,13 +101,13 @@ class Parser {
   private JTCode term2(JTCode code) throws Exception {
     JTBinExpr result = null;
     while ((tokenType == '*') || (tokenType == '/')) {
-      int op = tokenType;
+      int operator = tokenType;
       getNextToken();
       JTCode code2 = term();
       if (result == null) {
-        result = new JTBinExpr(op, code, code2);
+        result = new JTBinExpr(operator, code, code2);
       } else {
-        result = new JTBinExpr(op, result, code2);
+        result = new JTBinExpr(operator, result, code2);
       }
     }
     return result;
@@ -125,6 +125,18 @@ class Parser {
         break;
       case TokenType.INT:
         code = new JTInt((Integer) lex.value());
+        getNextToken();
+        break;
+      case '-':
+        getNextToken();
+        code = new JTMinus(factor());
+        break;
+      case '(':
+        getNextToken();
+        code = expr();
+        if (tokenType != ')') {
+          throw new Exception("文法エラー: 対応するカッコがありません。");
+        }
         getNextToken();
         break;
       default:

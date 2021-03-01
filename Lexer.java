@@ -58,6 +58,8 @@ public class Lexer {
         case '-':
         case '*':
         case '/':
+        case '(':
+        case ')':
           tokenType = c;
           break;
         default:
