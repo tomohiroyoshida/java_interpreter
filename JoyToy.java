@@ -2,10 +2,34 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.Hashtable;
 
 public class JoyToy {
   static void usage() {
     System.out.println("usage: Java JoyToy [source_filename]");
+  }
+
+  // 変数を記憶しておくHashtable
+  public static Hashtable Globals = new Hashtable();
+
+  // シンボルが存在するかどうかのフラグ
+  public static boolean hasSymbol(JTSymbol sym) {
+    return Globals.contains(sym);
+  }
+
+  // 変数の値を取り出す
+  public static JTCode getSymbolValue(JTSymbol sym) {
+    return (JTCode) Globals.get(sym);
+  }
+
+  // 変数に値をセットする
+  public static void set(JTSymbol sym, JTCode code) {
+    Globals.put(sym, code);
+    // int i = 'i';
+    // char cha = 'f';
+    // // i = cha;
+    // i = cha;
+    // cha = i;
   }
 
   public static void main(String[] args) {

@@ -30,6 +30,25 @@ public class Lexer {
     val = Integer.valueOf(num);
   }
 
+  // シンボルを読み込む
+  private void lexSymbol() throws Exception {
+    int tok = TokenType.SYMBOL;
+    StringBuffer buf = new StringBuffer();
+    while (true) {
+      int c = reader.read();
+      if (c < 0) {
+        throw new Exception("ファイルの終わりに達しました。");
+      }
+      if (!Character.isJavaIdentifierPart(c)) {
+        reader.unread(c);
+        break;
+      }
+      buf.append((char) c);
+    }
+    String s = buf.toString();
+    val = JTSymbol.intern(s);
+  }
+
   // 空白をスキップ
   private void skipWhiteSpace() throws Exception {
     int c = reader.read();
@@ -60,6 +79,7 @@ public class Lexer {
         case '/':
         case '(':
         case ')':
+        case '=':
           tokenType = c;
           break;
         default:
@@ -68,6 +88,11 @@ public class Lexer {
             reader.unread(c);
             lexDigit();
             tokenType = TokenType.INT;
+          }
+          // c がシンボルの時
+          else if (Character.isJavaIdentifierStart((char) c)) {
+            reader.unread(c);
+            lexSymbol();
           } else {
             throw new Exception("数字じゃない、または文字が正しくないです！");
           }
