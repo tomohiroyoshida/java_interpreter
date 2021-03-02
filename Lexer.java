@@ -48,6 +48,25 @@ public class Lexer {
     val = JTSymbol.intern(s);
   }
 
+  // 文字列を読み込む
+  private void lexString() throws Exception {
+    StringBuffer buf = new StringBuffer();
+    while (true) {
+      int c = reader.read();
+      if (c < 0)
+        throw new Exception("文字列中でファイルの終端に達しました。");
+      if (c == '"') {
+        break;
+      } else if (c == '\\') {
+        c = reader.read();
+        if (c < 0)
+          throw new Exception("文字列中でファイルの終端に達しました。");
+      }
+      buf.append((char) c);
+    }
+    val = buf.toString();
+  }
+
   // 空白をスキップ
   private void skipWhiteSpace() throws Exception {
     int c = reader.read();
@@ -120,6 +139,10 @@ public class Lexer {
             reader.unread(c);
             tokenType = '=';
           }
+          break;
+        case '"':
+          lexString();
+          tokenType = TokenType.STRING;
           break;
         default:
           // c が数値の時はトークンの種類が "TokenType.INT"(257)

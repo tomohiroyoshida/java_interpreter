@@ -149,6 +149,10 @@ class Parser {
           code = sym;
         }
         break;
+      case TokenType.STRING:
+        code = new JTString((String) lex.value());
+        getNextToken();
+        break;
       default:
         throw new Exception("文法エラーです");
     }
