@@ -57,7 +57,7 @@ public class Lexer {
     String s = buf.toString();
     val = JTSymbol.intern(s);
 
-    // シンボルを解析→それが true false の場合は真偽値として扱う
+    // シンボルを解析→それが "true" "false" の場合は真偽値として扱う
     if (reserved.containsKey(s))
       tokenType = ((Integer) reserved.get(s)).intValue();
   }
