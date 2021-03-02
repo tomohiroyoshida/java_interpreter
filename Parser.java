@@ -153,6 +153,14 @@ class Parser {
         code = new JTString((String) lex.value());
         getNextToken();
         break;
+      case TokenType.TRUE:
+        code = JTBool.True;
+        getNextToken();
+        break;
+      case TokenType.FALSE:
+        code = JTBool.False;
+        getNextToken();
+        break;
       default:
         throw new Exception("文法エラーです");
     }

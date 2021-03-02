@@ -1,9 +1,19 @@
 import java.io.Reader;
+import java.util.Hashtable;
 
 public class Lexer {
-  private LexerReader reader;
   private int tokenType;
   private Object val;
+  private LexerReader reader;
+
+  // 予約語を保持する
+  private static Hashtable<String, Integer> reserved = new Hashtable<String, Integer>();
+
+  // 予約語を登録する
+  static {
+    reserved.put("true", Integer.valueOf(TokenType.TRUE));
+    reserved.put("false", Integer.valueOf(TokenType.FALSE));
+  }
 
   /**
    * reader はトークンの読み込み元
@@ -46,6 +56,10 @@ public class Lexer {
     }
     String s = buf.toString();
     val = JTSymbol.intern(s);
+
+    // シンボルを解析→それが true false の場合は真偽値として扱う
+    if (reserved.containsKey(s))
+      tokenType = ((Integer) reserved.get(s)).intValue();
   }
 
   // 文字列を読み込む
