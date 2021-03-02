@@ -59,6 +59,17 @@ public class Lexer {
     reader.unread(c);
   }
 
+  // コメント行をスキップ
+  public void skipLineComment() throws Exception {
+    int c;
+    while ((c = reader.read()) != '\n') {
+      if (c < 0) {
+        throw new Exception("コメント中にファイルの終端に達しました。");
+      }
+    }
+    reader.unread(c);
+  }
+
   /**
    * 次のトークンへ進む
    * 返り値: 次のトークンがあればtrue なければ false
@@ -76,11 +87,23 @@ public class Lexer {
         case '+':
         case '-':
         case '*':
-        case '/':
         case '(':
         case ')':
         case '=':
           tokenType = c;
+          break;
+        case '/':
+          c = reader.read();
+          // 次の文字が「/」の場合は１行コメントとして読み飛ばす
+          if (c == '/') {
+            skipLineComment();
+            return advance();
+          }
+          // それ以外は普通の演算子「/」として処理する
+          else {
+            reader.unread(c);
+            tokenType = '=';
+          }
           break;
         default:
           // c が数値の時はトークンの種類が "TokenType.INT"(257)
