@@ -32,13 +32,12 @@ public class Lexer {
 
   // シンボルを読み込む
   private void lexSymbol() throws Exception {
-    int tok = TokenType.SYMBOL;
+    tokenType = TokenType.SYMBOL;
     StringBuffer buf = new StringBuffer();
     while (true) {
       int c = reader.read();
-      if (c < 0) {
+      if (c < 0)
         throw new Exception("ファイルの終わりに達しました。");
-      }
       if (!Character.isJavaIdentifierPart(c)) {
         reader.unread(c);
         break;
@@ -53,21 +52,35 @@ public class Lexer {
   private void skipWhiteSpace() throws Exception {
     int c = reader.read();
     // 入力の最後尾ではないかつ空白文字の場合
-    while ((c != -1) && Character.isWhitespace((char) c)) {
+    while ((c != -1) && Character.isWhitespace((char) c))
       c = reader.read();
+    reader.unread(c);
+  }
+
+  // 1行コメントをスキップ
+  public void skipLineComment() throws Exception {
+    int c;
+    // 次の文字が改行文字('\n')、つまり行末になるまでスキップし続ける
+    while ((c = reader.read()) != '\n') {
+      if (c < 0)
+        throw new Exception("コメント中にファイルの終端に達しました。");
     }
     reader.unread(c);
   }
 
-  // コメント行をスキップ
-  public void skipLineComment() throws Exception {
-    int c;
-    while ((c = reader.read()) != '\n') {
-      if (c < 0) {
+  // 複数行コメントをスキップ
+  public void skipComment() throws Exception {
+    int c = '\n';
+    while (true) {
+      c = reader.read();
+      if (c < 0)
         throw new Exception("コメント中にファイルの終端に達しました。");
+      if (c == '*') {
+        c = reader.read();
+        if (c == '/')
+          break;
       }
     }
-    reader.unread(c);
   }
 
   /**
@@ -98,6 +111,9 @@ public class Lexer {
           if (c == '/') {
             skipLineComment();
             return advance();
+          } else if (c == '*') {
+            skipComment();
+            return advance();
           }
           // それ以外は普通の演算子「/」として処理する
           else {
@@ -116,9 +132,8 @@ public class Lexer {
           else if (Character.isJavaIdentifierStart((char) c)) {
             reader.unread(c);
             lexSymbol();
-          } else {
+          } else
             throw new Exception("数字じゃない、または文字が正しくないです！");
-          }
           break;
       }
     } catch (Exception e) {
@@ -133,7 +148,6 @@ public class Lexer {
    */
   public int token() {
     return tokenType;
-
   }
 
   /**
