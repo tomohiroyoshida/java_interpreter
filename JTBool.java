@@ -1,6 +1,6 @@
 /** 真偽値を生成するクラス */
 public class JTBool extends JTCode {
-  private boolean bool;
+  private boolean p;
   // 真偽を表すオブジェクト
   public static JTBool True;
   public static JTBool False;
@@ -11,14 +11,38 @@ public class JTBool extends JTCode {
   }
 
   private JTBool(boolean b) {
-    bool = b;
+    p = b;
+  }
+
+  public JTCode and(JTCode code2) throws Exception {
+    if (p) {
+      JTCode c2 = code2.run();
+      if (c2 == JTBool.True)
+        return JTBool.True;
+      else
+        return JTBool.False;
+    } else {
+      return JTBool.False;
+    }
+  }
+
+  public JTCode or(JTCode code2) throws Exception {
+    if (p)
+      return JTBool.True;
+    else {
+      JTCode c2 = code2.run();
+      if (c2 == JTBool.True)
+        return JTBool.True;
+      else
+        return JTBool.False;
+    }
   }
 
   public String toString() {
-    return Boolean.toString(bool);
+    return Boolean.toString(p);
   }
 
   public boolean isTrue() {
-    return bool;
+    return p;
   }
 }

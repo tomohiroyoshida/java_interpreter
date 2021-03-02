@@ -2,13 +2,12 @@ import java.io.Reader;
 import java.util.Hashtable;
 
 public class Lexer {
-  private int tokenType;
-  private Object val;
-  private LexerReader reader;
+  private int tokenType; // トークンの種類
+  private Object val; // トークンの値
+  private LexerReader reader; // 読み込み
 
   // 予約語を保持する
   private static Hashtable<String, Integer> reserved = new Hashtable<String, Integer>();
-
   // 予約語を登録する
   static {
     reserved.put("true", Integer.valueOf(TokenType.TRUE));
@@ -135,9 +134,6 @@ public class Lexer {
         case '*':
         case '(':
         case ')':
-        case '=':
-          tokenType = c;
-          break;
         case '/':
           c = reader.read();
           // 次の文字が「/」の場合は１行コメントとして読み飛ばす
@@ -157,6 +153,60 @@ public class Lexer {
         case '"':
           lexString();
           tokenType = TokenType.STRING;
+          break;
+        case '=':
+          c = reader.read();
+          // '=='(二連続で'=')か確認する
+          if (c == '=') {
+            tokenType = TokenType.EQ; // '=='
+          } else {
+            reader.unread(c);
+            tokenType = '=';
+          }
+          tokenType = c;
+          break;
+        case '!':
+          c = reader.read();
+          if (c == '=') {
+            tokenType = TokenType.NE; // '!='
+          } else {
+            reader.unread(c);
+            tokenType = '!';
+          }
+          break;
+        case '<':
+          c = reader.read();
+          if (c == '=') {
+            tokenType = TokenType.LE; //'<='
+          } else {
+            reader.unread(c);
+            tokenType = '<';
+          }
+          break;
+        case '>':
+          c = reader.read();
+          if (c == '=') {
+            tokenType = TokenType.GE; // '>='
+          } else {
+            reader.unread(c);
+            tokenType = '>';
+          }
+          break;
+        case '&':
+          c = reader.read();
+          if (c == '&') {
+            tokenType = TokenType.AND; // '&&'
+          } else {
+            throw new Exception("演算子 '&' は使えません！");
+          }
+          break;
+        case '|':
+          c = reader.read();
+          if (c == '|') {
+            tokenType = TokenType.OR; // '||'
+          } else {
+            throw new Exception("演算子 '|' は使えません！");
+          }
           break;
         default:
           // c が数値の時はトークンの種類が "TokenType.INT"(257)

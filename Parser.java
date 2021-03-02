@@ -25,7 +25,7 @@ class Parser {
   }
 
   /**
-   * expr()を返す
+   * simpleExpr()を返す
    * ";"がきたら終わり
    */
   private JTCode program() throws Exception {
@@ -42,15 +42,51 @@ class Parser {
   }
 
   /**
+   * 「単純式」を返す
+   */
+  private JTCode expr() throws Exception {
+    JTCode code = simpleExpr();
+    switch (tokenType) {
+      case '<':
+      case '>':
+      case TokenType.EQ: // '=='
+      case TokenType.NE: // '!='
+      case TokenType.LE: // '<='
+      case TokenType.GE: // '>='
+        code = expr2(code);
+        break;
+    }
+    return code;
+  }
+
+  /* '==' '!=' '<=' '>='の処理 */
+  private JTBinExpr expr2(JTCode code) throws Exception {
+    JTBinExpr result = null;
+    while ((tokenType == '<') || (tokenType == '>') || (tokenType == TokenType.EQ) || (tokenType == TokenType.NE)
+        || (tokenType == TokenType.LE) || (tokenType == TokenType.GE)) {
+      int op = tokenType;
+      getNextToken();
+      JTCode code2 = simpleExpr();
+      if (result == null) {
+        result = new JTBinExpr(op, code, code2);
+      } else {
+        result = new JTBinExpr(op, result, code2);
+      }
+    }
+    return result;
+  }
+
+  /**
    * 「項(term)」と「 "+" "-"」を読み込む
    * トークンの集合を構文木にした「式」を返す
    */
-  private JTCode expr() throws Exception {
+  private JTCode simpleExpr() throws Exception {
     JTCode code = term(); // 3
     switch (tokenType) {
       case '+':
       case '-':
-        code = expr2(code);
+      case TokenType.OR:
+        code = simpleExpr2(code);
         break;
     }
     return code;
@@ -62,9 +98,9 @@ class Parser {
    * @return
    * @throws Exception
    */
-  private JTBinExpr expr2(JTCode code) throws Exception {
+  private JTBinExpr simpleExpr2(JTCode code) throws Exception {
     JTBinExpr result = null;
-    while ((tokenType == '+') || (tokenType == '-')) {
+    while ((tokenType == '+') || (tokenType == '-') || (tokenType == TokenType.OR)) {
       int op = tokenType;
       getNextToken();
       JTCode code2 = term();
@@ -87,6 +123,7 @@ class Parser {
     switch (tokenType) {
       case ('*'):
       case ('/'):
+      case TokenType.AND: // '&&'
         code = term2(code);
         break;
     }
@@ -100,7 +137,7 @@ class Parser {
    */
   private JTCode term2(JTCode code) throws Exception {
     JTBinExpr result = null;
-    while ((tokenType == '*') || (tokenType == '/')) {
+    while ((tokenType == '*') || (tokenType == '/') || (tokenType == TokenType.AND)) {
       int operator = tokenType;
       getNextToken();
       JTCode code2 = term();
@@ -133,7 +170,7 @@ class Parser {
         break;
       case '(':
         getNextToken();
-        code = expr();
+        code = simpleExpr();
         if (tokenType != ')') {
           throw new Exception("文法エラー: 対応するカッコがありません。");
         }
@@ -144,7 +181,7 @@ class Parser {
         getNextToken();
         if (tokenType == '=') {
           getNextToken();
-          code = new JTAssign(sym, expr());
+          code = new JTAssign(sym, simpleExpr());
         } else {
           code = sym;
         }
@@ -160,6 +197,10 @@ class Parser {
       case TokenType.FALSE:
         code = JTBool.False;
         getNextToken();
+        break;
+      case '!':
+        getNextToken();
+        code = new JTNot(factor());
         break;
       default:
         throw new Exception("文法エラーです");

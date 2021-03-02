@@ -28,4 +28,28 @@ public abstract class JTCode {
   public JTCode divide(JTCode code) throws Exception {
     throw new Exception("このオブジェクトに演算子'/'は使えません");
   }
+
+  public JTCode less(JTCode code) throws Exception {
+    throw new Exception("このオブジェクトに演算子'<'は使えません");
+  }
+
+  public JTCode greater(JTCode code) throws Exception {
+    throw new Exception("このオブジェクトに演算子'>'は使えません");
+  }
+
+  public JTCode le(JTCode code) throws Exception {
+    throw new Exception("このオブジェクトに演算子'<='は使えません");
+  }
+
+  public JTCode ge(JTCode code) throws Exception {
+    throw new Exception("このオブジェクトに演算子'>='は使えません");
+  }
+
+  public JTCode and(JTCode code) throws Exception {
+    throw new Exception("このオブジェクトに演算子'&&'は使えません");
+  }
+
+  public JTCode or(JTCode code) throws Exception {
+    throw new Exception("このオブジェクトに演算子'||'は使えません");
+  }
 }
