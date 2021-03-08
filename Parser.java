@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 class Parser {
   private Lexer lex; // 字句解析した結果
   private int tokenType; // 先読みしたトークンの種類
@@ -6,7 +8,7 @@ class Parser {
   private void getNextToken() {
     if (lex.advance()) {
       tokenType = lex.token();
-      // System.out.println("tokenType: " + tokenType);
+      System.out.println("tokenType: " + tokenType);
     } else {
       tokenType = TokenType.EOS; // 次のトークンが存在しない時はEOSを設定
     }
@@ -54,6 +56,9 @@ class Parser {
     case TokenType.WHILE:
       code = while_stmt();
       break;
+    case '{':
+      code = block();
+      break;
     default:
       code = expr();
       break;
@@ -96,6 +101,22 @@ class Parser {
       throw new Exception("while の次に')'がありません");
     JTCode st = stmt();
     return new JTWhile(cond, st);
+  }
+
+  private JTCode block() throws Exception {
+    ArrayList<JTCode> list = null;
+    getNextToken();
+    while (tokenType != '}') {
+      JTCode c = stmt();
+      if (tokenType != ';')
+        throw new Exception("block() で文法エラーですわよ！");
+      getNextToken(); // skip ';'
+      if (list == null)
+        list = new ArrayList<JTCode>();
+      list.add(c);
+    }
+    getNextToken(); // skip '}'
+    return new JTBlock(list);
   }
 
   /**
