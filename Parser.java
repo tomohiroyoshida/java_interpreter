@@ -6,6 +6,7 @@ class Parser {
   private void getNextToken() {
     if (lex.advance()) {
       tokenType = lex.token();
+      // System.out.println("tokenType: " + tokenType);
     } else {
       tokenType = TokenType.EOS; // 次のトークンが存在しない時はEOSを設定
     }
@@ -25,24 +26,80 @@ class Parser {
   }
 
   /**
-   * simpleExpr()を返す
+   * を返す
    * ";"がきたら終わり
    */
   private JTCode program() throws Exception {
-    JTCode code = expr(); //2
+    JTCode code = stmt(); //2
     if (code != null) {
       switch (tokenType) {
       case ';':
         break;
       default:
-        throw new Exception("文法エラーです");
+        throw new Exception("program() で文法エラーですわよ！");
       }
     }
     return code;
   }
 
   /**
-   * 「単純式」を返す
+   * 「文」(statement) を返す
+   */
+  private JTCode stmt() throws Exception {
+    JTCode code = null;
+    switch (tokenType) {
+    case TokenType.IF:
+      code = if_stmt();
+      break;
+    case TokenType.WHILE:
+      code = while_stmt();
+      break;
+    default:
+      code = expr();
+      break;
+    }
+    return code;
+  }
+
+  /**
+   * 「if文」(if_statement)を返す
+   */
+  private JTCode if_stmt() throws Exception {
+    getNextToken(); // 'if' 自体をスキップ
+    if (tokenType != '(')
+      throw new Exception("文法エラーです (");
+    getNextToken(); // '(' 自体をスキップ
+    JTCode cond = expr();
+    if (tokenType != ')')
+      throw new Exception("文法エラーです )");
+    getNextToken(); // ')' 自体をスキップ
+    JTCode st1 = stmt();
+    JTCode st2 = null;
+    // もし else があれば
+    if (tokenType == TokenType.ELSE) {
+      getNextToken(); // 'else' 自体をスキップ
+      st2 = stmt();
+    }
+    return new JTIf(cond, st1, st2);
+  }
+
+  /**
+   * while
+   */
+  private JTCode while_stmt() throws Exception {
+    getNextToken();
+    if (tokenType != '(')
+      throw new Exception("while の次に'('がありません");
+    getNextToken();
+    JTCode cond = expr();
+    if (tokenType != ')')
+      throw new Exception("while の次に')'がありません");
+    JTCode st = stmt();
+    return new JTWhile(cond, st);
+  }
+
+  /**
+   * 「式」を返す
    */
   private JTCode expr() throws Exception {
     JTCode code = simpleExpr(); // 3
@@ -59,7 +116,10 @@ class Parser {
     return code;
   }
 
-  /* '==' '!=' '<=' '>='の処理 */
+  /**
+   * 式
+   * '==' '!=' '<=' '>='の処理
+   */
   private JTBinExpr expr2(JTCode code) throws Exception {
     JTBinExpr result = null;
     while ((tokenType == '<') || (tokenType == '>') || (tokenType == TokenType.EQ) || (tokenType == TokenType.NE)
@@ -77,7 +137,7 @@ class Parser {
   }
 
   /**
-   * 「項(term)」と「 "+" "-"」を読み込む
+   * 「単純式」と「 "+" "-"」を読み込む
    * トークンの集合を構文木にした「式」を返す
    */
   private JTCode simpleExpr() throws Exception {
@@ -203,7 +263,7 @@ class Parser {
       code = new JTNot(factor());
       break;
     default:
-      throw new Exception("文法エラーです");
+      throw new Exception("factor() で文法エラーです！！");
     }
     return code;
   }

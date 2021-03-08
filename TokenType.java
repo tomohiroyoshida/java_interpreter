@@ -11,4 +11,7 @@ public class TokenType {
   public static final int GE = 265; // '>='
   public static final int AND = 266; // '&&'
   public static final int OR = 267; // '||'
+  public static final int IF = 268; // 'if'
+  public static final int ELSE = 269; // 'else'
+  public static final int WHILE = 270; // 'while'
 }

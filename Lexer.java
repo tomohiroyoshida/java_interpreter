@@ -12,6 +12,9 @@ public class Lexer {
   static {
     reserved.put("true", Integer.valueOf(TokenType.TRUE));
     reserved.put("false", Integer.valueOf(TokenType.FALSE));
+    reserved.put("if", Integer.valueOf(TokenType.IF));
+    reserved.put("else", Integer.valueOf(TokenType.ELSE));
+    reserved.put("while", Integer.valueOf(TokenType.WHILE));
   }
 
   /**
@@ -127,101 +130,103 @@ public class Lexer {
       if (c < 0)
         return false;
       switch (c) {
-        // c が "; + - * /" の時は文字コードがそのままトークンの種類を表す
-        case ';':
-        case '+':
-        case '-':
-        case '*':
-        case '(':
-        case ')':
-        case '/':
-          c = reader.read();
-          // 次の文字が「/」の場合は１行コメントとして読み飛ばす
-          if (c == '/') {
-            skipLineComment();
-            return advance();
-          } else if (c == '*') {
-            skipComment();
-            return advance();
-          }
-          // それ以外は普通の演算子「/」として処理する
-          else {
-            reader.unread(c);
-            tokenType = '=';
-          }
-          break;
-        case '"':
-          lexString();
-          tokenType = TokenType.STRING;
-          break;
-        case '=':
-          c = reader.read();
-          // '=='(二連続で'=')か確認する
-          if (c == '=') {
-            tokenType = TokenType.EQ; // '=='
-          } else {
-            reader.unread(c);
-            tokenType = '=';
-          }
-          tokenType = c;
-          break;
-        case '!':
-          c = reader.read();
-          if (c == '=') {
-            tokenType = TokenType.NE; // '!='
-          } else {
-            reader.unread(c);
-            tokenType = '!';
-          }
-          break;
-        case '<':
-          c = reader.read();
-          if (c == '=') {
-            tokenType = TokenType.LE; //'<='
-          } else {
-            reader.unread(c);
-            tokenType = '<';
-          }
-          break;
-        case '>':
-          c = reader.read();
-          if (c == '=') {
-            tokenType = TokenType.GE; // '>='
-          } else {
-            reader.unread(c);
-            tokenType = '>';
-          }
-          break;
-        case '&':
-          c = reader.read();
-          if (c == '&') {
-            tokenType = TokenType.AND; // '&&'
-          } else {
-            throw new Exception("演算子 '&' は使えません！");
-          }
-          break;
-        case '|':
-          c = reader.read();
-          if (c == '|') {
-            tokenType = TokenType.OR; // '||'
-          } else {
-            throw new Exception("演算子 '|' は使えません！");
-          }
-          break;
-        default:
-          // c が数値の時はトークンの種類が "TokenType.INT"(257)
-          if (Character.isDigit((char) c)) {
-            reader.unread(c);
-            lexDigit();
-            tokenType = TokenType.INT;
-          }
-          // c がシンボルの時
-          else if (Character.isJavaIdentifierStart((char) c)) {
-            reader.unread(c);
-            lexSymbol();
-          } else
-            throw new Exception("数字じゃない、または文字が正しくないです！");
-          break;
+      // c が "; + - * ( )" の時は文字コードがそのままトークンの種類を表す
+      case ';':
+      case '+':
+      case '-':
+      case '*':
+      case '(':
+      case ')':
+        tokenType = c;
+        break;
+      case '/':
+        c = reader.read();
+        // 次の文字も「/」の場合は１行コメントとして読み飛ばす
+        if (c == '/') {
+          skipLineComment();
+          return advance();
+        } else if (c == '*') {
+          skipComment();
+          return advance();
+        }
+        // それ以外は普通の演算子「/」として処理する
+        else {
+          reader.unread(c);
+          tokenType = '=';
+        }
+        break;
+      case '"':
+        lexString();
+        tokenType = TokenType.STRING;
+        break;
+      case '=':
+        c = reader.read();
+        // '=='(二連続で'=')か確認する
+        if (c == '=') {
+          tokenType = TokenType.EQ; // '=='
+        } else {
+          reader.unread(c);
+          tokenType = '=';
+        }
+        tokenType = c;
+        break;
+      case '!':
+        c = reader.read();
+        if (c == '=') {
+          tokenType = TokenType.NE; // '!='
+        } else {
+          reader.unread(c);
+          tokenType = '!';
+        }
+        break;
+      case '<':
+        c = reader.read();
+        if (c == '=') {
+          tokenType = TokenType.LE; //'<='
+        } else {
+          reader.unread(c);
+          tokenType = '<';
+        }
+        break;
+      case '>':
+        c = reader.read();
+        if (c == '=') {
+          tokenType = TokenType.GE; // '>='
+        } else {
+          reader.unread(c);
+          tokenType = '>';
+        }
+        break;
+      case '&':
+        c = reader.read();
+        if (c == '&') {
+          tokenType = TokenType.AND; // '&&'
+        } else {
+          throw new Exception("演算子 '&' は使えません！");
+        }
+        break;
+      case '|':
+        c = reader.read();
+        if (c == '|') {
+          tokenType = TokenType.OR; // '||'
+        } else {
+          throw new Exception("演算子 '|' は使えません！");
+        }
+        break;
+      default:
+        // c が数値の時はトークンの種類が "TokenType.INT"(257)
+        if (Character.isDigit((char) c)) {
+          reader.unread(c);
+          lexDigit();
+          tokenType = TokenType.INT;
+        }
+        // c がシンボルの時
+        else if (Character.isJavaIdentifierStart((char) c)) {
+          reader.unread(c);
+          lexSymbol();
+        } else
+          throw new Exception("数字じゃない、または文字が正しくないです！");
+        break;
       }
     } catch (Exception e) {
       e.printStackTrace();
