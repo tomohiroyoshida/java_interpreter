@@ -7,14 +7,15 @@ public class JTAssign extends JTBinExpr {
     super('=', symbol, code);
     /** ↑ここでやってること↑
     int op = '=';
-    JTCode codeLeft = symbol;
-    JTCode codeRight = code;
+    JTCode code1 = symbol;
+    JTCode code2 = code;
     */
   }
 
+  // 割り当て
   public JTCode run() throws Exception {
-    JTSymbol sym = (JTSymbol) codeLeft;
-    JTCode c = codeRight.run();
+    JTSymbol sym = (JTSymbol) code1;
+    JTCode c = code2.run();
     JoyToy.set(sym, c);
     return c;
   }
